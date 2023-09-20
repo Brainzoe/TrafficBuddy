@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaflet Map Example</title>
+    <!-- Include Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    
+    <!-- Include jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Include Leaflet JavaScript -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    
+    <!-- Include your JavaScript file -->
+    <script type="module" src="../static/script.js"></script>
+
+    
+    <!-- Include your custom CSS file for styling (if needed) -->
+    <link rel="stylesheet" href="../static/style.css">
+    
+    <style>
+        #map {
+            width: 100%;
+            height: 400px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Map container -->
+    <div id="map"></div>
+
+    <!-- Traffic Form -->
+    <form id="traffic-form">
+        <label for="origin">Origin:</label>
+        <input type="text" id="origin" name="origin" required>
+        <label for="destination">Destination:</label>
+        <input type="text" id="destination" name="destination" required>
+        <button type="submit">Get Traffic Data</button>
+    </form>
+
+    <!-- Display Traffic Data -->
+    <pre id="traffic-data"></pre>
+
+    <script>
+        // Initialize a Leaflet map
+        var map = L.map('map').setView([51.505, -0.09], 13); // Set initial coordinates and zoom level
+
+        // Add a tile layer (e.g., OpenStreetMap) to the map
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // JavaScript code for handling the form submission and traffic data (use your own code here)
+        document.addEventListener("DOMContentLoaded", function() {
+            var form = document.getElementById("traffic-form");
+
+            form.addEventListener("submit", function(e) {
+                e.preventDefault();
+
+                // Get user input from the form
+                const origin = document.getElementById("origin").value;
+                const destination = document.getElementById("destination").value;
+
+                // Create an object to send as JSON data
+                const requestData = { origin, destination };
+
+                // Make an AJAX POST request to your Flask backend (you can customize this)
+                fetch("/get_traffic_data", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(requestData),
+                })
+                .then(function(response) {
+                    return response.json();
+                })
+                .then(function(data) {
+                    // Display the returned traffic data in a <pre> element
+                    document.getElementById("traffic-data").textContent = JSON.stringify(data, null, 2);
+                })
+                .catch(function(error) {
+                    // Handle errors
+                    console.error(error);
+                    document.getElementById("traffic-data").textContent = "Error fetching traffic data.";
+                });
+            });
+        });
+    </script>
+</body>
+</html>
